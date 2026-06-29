@@ -9,14 +9,18 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
 
-    [Header("Movement Details")]
+    [Header("Movement")]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float doubleJumpForce;
-
     private bool canDoubleJump;
 
-    [Header("Colliision Info")]
+    [Header("Wall Interactions")]
+    [SerializeField] private float wallJumpDuration = .6f;
+    [SerializeField] private Vector2 wallJumpForce;
+    private bool isWallJumping;
+
+    [Header("Colliision")]
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private float wallCheckDistance;
     [SerializeField] private LayerMask whatIsGround;
@@ -52,12 +56,8 @@ public class PlayerController : MonoBehaviour
     private void HandleWallSlide()
     {
         bool canWallSlide = isWallDetected && rb.velocity.y < 0;
-
         float yModifier = yInput < 0 ? 1 : 0.05f;
-
         if (canWallSlide == false) return;
-
-       
 
         rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * yModifier);
 
@@ -103,6 +103,10 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
         }
+        else if (isWallDetected && !isGrounded)
+        {
+            WallJump();
+        }
         else if (canDoubleJump)
         {
             DoubleJump();
@@ -111,12 +115,30 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    private void WallJump()
+    {
+        canDoubleJump = true;
+        isWallJumping = true;
+        rb.velocity = new Vector2(wallJumpForce.x * -facingDirection, wallJumpForce.y);
+        Flip();
+        StopAllCoroutines();
+        StartCoroutine(WallJumpRoutine());
+    }
+
+    private IEnumerator WallJumpRoutine()
+    {
+        isWallJumping = true;
+        yield return new WaitForSeconds(wallJumpDuration);
+        isWallJumping = false;
+
+    }
     private void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
     }
     private void DoubleJump()
     {
+        isWallJumping = false;
         canDoubleJump = false;
         rb.velocity = new Vector2(rb.velocity.x, doubleJumpForce);
     }
@@ -138,6 +160,7 @@ public class PlayerController : MonoBehaviour
     private void HandleMovement()
     {
         if (isWallDetected) return;
+        if (isWallJumping) return;
         rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
     }
 
