@@ -133,12 +133,12 @@ public class PlayerController : MonoBehaviour
     {
         if (Time.time < bufferJumpActivated + bufferJumpWindow)
         {
-            bufferJumpActivated = Time.time -1;
+            bufferJumpActivated = Time.time - 1;
             Jump();
-            
+
         }
     }
-    private void ActivateCoyoteJump()=> coyoteJumpActivated = Time.time;
+    private void ActivateCoyoteJump() => coyoteJumpActivated = Time.time;
     private void CancelCoyoteJump() => coyoteJumpActivated = Time.time - 1;
     #endregion
 
@@ -146,17 +146,17 @@ public class PlayerController : MonoBehaviour
     {
         bool coyoteJumpAvaliable = Time.time < coyoteJumpActivated + coyoteJumpWindow;
 
-    
+
         if (isGrounded || coyoteJumpAvaliable)
         {
-          
+
             Jump();
         }
         else if (isWallDetected && !isGrounded)
         {
             WallJump();
         }
-        else if (canDoubleJump && isAirBorne && !coyoteJumpAvaliable) 
+        else if (canDoubleJump && isAirBorne && !coyoteJumpAvaliable)
         {
             DoubleJump();
         }
@@ -176,7 +176,7 @@ public class PlayerController : MonoBehaviour
         canDoubleJump = false;
         rb.velocity = new Vector2(rb.velocity.x, doubleJumpForce);
     }
-    
+
     private void WallJump()
     {
         canDoubleJump = true;
